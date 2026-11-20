@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Student Service Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>CampusConnect</h1>
+        <p>Integrated Student Service Management System</p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="tickets-tab">Manage Tickets</button>
+        <button class="tab-btn" data-tab="queue-tab">Priority Queue</button>
+        <button class="tab-btn" data-tab="reports-tab">Data & Reports</button>
+        <button class="tab-btn" data-tab="tests-tab">Automated Tests (15)</button>
+        <button class="tab-btn" data-tab="traceability-tab">Traceability Matrix</button>
+    </nav>
+
+    <!-- Global Alert Banner -->
+    <div id="alert-box" class="alert-box" hidden></div>
+
+    <!-- TAB 1: MANAGE TICKETS -->
+    <section id="tickets-tab" class="tab-content active">
+        <!-- New Ticket Form -->
+        <div class="panel">
+            <h2>Add Student Service Request</h2>
+            <form id="ticket-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="student-name">Student Name *</label>
+                        <input type="text" id="student-name" required placeholder="e.g. Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="student-id">Student ID *</label>
+                        <input type="text" id="student-id" required placeholder="e.g. STU-2026-01">
+                    </div>
+                    <div class="form-group">
+                        <label for="ticket-category">Category *</label>
+                        <select id="ticket-category" required>
+                            <option value="">Select Category</option>
+                            <option value="Academic">Academic</option>
+                            <option value="Financial">Financial</option>
+                            <option value="Registrar">Registrar</option>
+                            <option value="IT Support">IT Support</option>
+                            <option value="Facilities">Facilities</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticket-priority">Priority *</label>
+                        <select id="ticket-priority" required>
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="estimated-hours">Est. Hours (0.5 - 100) *</label>
+                        <input type="number" id="estimated-hours" step="0.5" min="0.5" max="100" required value="2.0">
+                    </div>
+                    <div class="form-group full">
+                        <label for="ticket-desc">Description *</label>
+                        <textarea id="ticket-desc" rows="3" required placeholder="Service request details..."></textarea>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Submit Ticket</button>
+                    <button type="reset" class="btn btn-secondary">Clear Form</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Filter and Search Controls -->
+        <div class="panel">
+            <h2>Service Requests Directory</h2>
+            <div class="filter-grid">
+                <input type="text" id="search-input" placeholder="Search by ID, name, or description...">
+                <select id="filter-category">
+                    <option value="ALL">All Categories</option>
+                    <option value="Academic">Academic</option>
+                    <option value="Financial">Financial</option>
+                    <option value="Registrar">Registrar</option>
+                    <option value="IT Support">IT Support</option>
+                    <option value="Facilities">Facilities</option>
+                </select>
+                <select id="filter-priority">
+                    <option value="ALL">All Priorities</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+                <select id="filter-status">
+                    <option value="ALL">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <select id="sort-by">
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="priority">Priority Order</option>
+                    <option value="hours">Est. Hours</option>
+                    <option value="name">Student Name</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student Name</th>
+                            <th>Student ID</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Hours</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tickets-table-body">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB 2: PRIORITY QUEUE PROCESSING -->
+    <section id="queue-tab" class="tab-content">
+        <div class="panel">
+            <h2>Priority Queue Engine</h2>
+            <p>Processes requests in accordance with priority sequence (Urgent &gt; High &gt; Medium &gt; Low) and FIFO ordering.</p>
+            <div class="actions" style="margin-top: 15px; margin-bottom: 20px;">
+                <button id="process-queue-btn" class="btn btn-warning">Process Next Pending Ticket</button>
+            </div>
+            <h3>Current Pending Queue View</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Queue Position</th>
+                            <th>ID</th>
+                            <th>Student Name</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Est. Hours</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queue-table-body">
+                        <!-- Dynamic queue items -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB 3: DATA & REPORTS -->
+    <section id="reports-tab" class="tab-content">
+        <div class="panel">
+            <h2>Metrics & Analytical Summary</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-title">Total Requests</div>
+                    <div class="metric-val" id="metric-total">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Pending</div>
+                    <div class="metric-val" id="metric-pending">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">In Progress</div>
+                    <div class="metric-val" id="metric-progress">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Resolved</div>
+                    <div class="metric-val" id="metric-resolved">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Avg Est. Hours</div>
+                    <div class="metric-val" id="metric-avg-hours">0.0</div>
+                </div>
+            </div>
+            <div class="actions">
+                <button id="reset-data-btn" class="btn btn-secondary">Reset to Seed Data</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB 4: AUTOMATED TESTS -->
+    <section id="tests-tab" class="tab-content">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Automated Test Suite (15 Test Cases)</h2>
+                <button id="run-tests-btn" class="btn btn-primary">Run Verification Suite</button>
+            </div>
+            <div class="table-wrap" style="margin-top: 15px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Test Title</th>
+                            <th>Target Component</th>
+                            <th>Result</th>
+                            <th>Log Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="test-results-body">
+                        <tr><td colspan="5" style="text-align: center;">Click "Run Verification Suite" to execute tests.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB 5: TRACEABILITY MATRIX -->
+    <section id="traceability-tab" class="tab-content">
+        <div class="panel">
+            <h2>TSA Traceability Matrix</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Milestone</th>
+                            <th>Requirement / Business Rule</th>
+                            <th>Implementation File / Method</th>
+                            <th>Automated Test Evidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>TSA1</strong></td>
+                            <td>Input Validation & Field Guardrails</td>
+                            <td><code>js/store.js -> validateTicketData()</code></td>
+                            <td>Test #2, Test #3</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TSA1</strong></td>
+                            <td>Unique Identity Assignment</td>
+                            <td><code>js/store.js -> generateUniqueId()</code></td>
+                            <td>Test #1, Test #12</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TSA2</strong></td>
+                            <td>Domain Design & Status State Transition Rules</td>
+                            <td><code>js/store.js -> isValidStatusTransition()</code></td>
+                            <td>Test #5, Test #15</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TSA3</strong></td>
+                            <td>Priority Queue Resolution Algorithm</td>
+                            <td><code>js/queue.js -> processNextQueueTicket()</code></td>
+                            <td>Test #6</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TSA3</strong></td>
+                            <td>Filtered Directory Views & Sorting Engines</td>
+                            <td><code>js/ui.js -> getFilteredAndSortedTickets()</code></td>
+                            <td>Test #7, Test #8, Test #9, Test #10</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TSA4</strong></td>
+                            <td>Data Storage & State Persistence</td>
+                            <td><code>js/store.js -> localStorage</code> integration</td>
+                            <td>Test #4, Test #11, Test #14</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TSA4</strong></td>
+                            <td>Analytics Aggregation & Metrics Summary</td>
+                            <td><code>js/store.js -> calculateMetrics()</code></td>
+                            <td>Test #13</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="edit-modal" class="modal" hidden>
+    <div class="modal-content">
+        <h3>Update Ticket Details & Status</h3>
+        <form id="edit-form">
+            <input type="hidden" id="edit-ticket-id">
+            <div class="form-group">
+                <label>Ticket ID</label>
+                <input type="text" id="edit-display-id" disabled>
+            </div>
+            <div class="form-group">
+                <label for="edit-status">Status Transition *</label>
+                <select id="edit-status" required></select>
+            </div>
+            <div class="form-group">
+                <label for="edit-priority">Priority *</label>
+                <select id="edit-priority" required>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Urgent">Urgent</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-hours">Estimated Hours *</label>
+                <input type="number" id="edit-hours" step="0.5" min="0.5" max="100" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-desc">Description *</label>
+                <textarea id="edit-desc" rows="3" required></textarea>
+            </div>
+            <div class="actions" style="margin-top: 15px;">
+                <button type="button" id="close-modal-btn" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<label for="status-transition">Status Transition *</label>
+<select id="status-transition" name="statusTransition">
+  <option value="Pending">Pending</option>
+  <option value="In Progress">In Progress</option>
+  <option value="Resolved">Resolved</option>
+  <option value="Cancelled">Cancelled</option>
+</select>
+
+<!-- Main Module Entry Script -->
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
